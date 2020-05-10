@@ -3,21 +3,16 @@ const http = require("http");
 const socketio = require("socket.io");
 
 const app = require("./app");
-
 const server = http.createServer(app);
-
 const io = socketio(server);
 
-let count = 0;
-io.on("connection", (socket) => {
-  console.log("New client connected");
-  socket.on("increment", () => {
-    ++count;
-    io.emit("countUpdated", count);
-    //special note. Broadcast emits to all OTHER clients. So use normal emit to include original client
-    //socket.broadcast.emit("countUpdated", count);
+//syntax: use 'connection' string, then specify socket strings
+io.on("connection", function (socket) {
+  socket.on("chat", (chatObj) => {
+    let msg = chatObj.name + ": " + chatObj.text;
+    console.log(msg);
+    io.emit("chatlog", msg);
   });
-  socket.broadcast.emit("countUpdated", count);
 });
 
 // io.on("connection", function (socket) {
