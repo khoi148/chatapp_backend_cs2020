@@ -1,11 +1,11 @@
-const require = require("mongoose");
+const mongoose = require("mongoose");
 
 const roomSchema = new mongoose.Schema({
-  room: String,
+  name: String,
+  //NOTE: do not declare unique:true. Mongoose will think even NULL member arrays conflict. As a null members array is itself unique
   members: [
     {
       type: mongoose.Schema.ObjectId,
-      unique: true,
       ref: "User",
     },
   ],

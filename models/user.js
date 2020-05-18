@@ -1,10 +1,11 @@
-const require = require("mongoose");
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "User must have a name"],
     unique: true,
+    toLowerCase: true,
   },
   token: {
     type: String,
@@ -12,10 +13,6 @@ const userSchema = new mongoose.Schema({
   room: {
     type: mongoose.Schema.ObjectId,
     ref: "Room",
-  },
-  online: {
-    type: Boolean,
-    default: false,
   },
 });
 
