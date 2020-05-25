@@ -8,8 +8,6 @@ router.route("/").get((req, res) => {
   res.send("ok");
 });
 
-const Room = require("./models/room");
-
 // then GET request "/" once to create these 5 rooms.
 
 // ... more code incoming
