@@ -20,7 +20,6 @@ class Server {
         "User is already online. Cannot login again. Pls log out first"
       );
     }
-
     user.token = socketId;
     user.online = true;
     console.log("user login token is: ", user.token);

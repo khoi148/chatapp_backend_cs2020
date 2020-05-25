@@ -15,7 +15,6 @@ module.exports = function (io) {
         return cb("Bad words are not allowed");
       }
       io.to(server.user.room._id).emit("chatlog", chatObj);
-      //io.emit("chatlog", chatObj); //io means this event triggers for ALL listeners
     });
 
     socket.on("login", async (userName, cb) => {
