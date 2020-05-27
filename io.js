@@ -11,10 +11,13 @@ module.exports = function (io) {
       const server = await ServerClass.checkUser(socket.id);
       //console.log(chatObj); chatObj = {name:..., text:...}
       const filter = new Filter();
-      if (filter.isProfane(chatObj.text)) {
+      if (filter.isProfane(chatObj.text))
         return cb("Bad words are not allowed");
+      try {
+        io.to(server.user.room._id).emit("chatlog", chatObj);
+      } catch (err) {
+        console.log(err.message);
       }
-      io.to(server.user.room._id).emit("chatlog", chatObj);
     });
 
     socket.on("login", async (userName, cb) => {
@@ -56,9 +59,9 @@ module.exports = function (io) {
       // "_" basically a filler input, no use
       try {
         const server = await ServerClass.checkUser(socket.id);
-        //Update database when user leaves a room
+        //Update client & database when user leaves a room
+        socket.emit("selectedRoom", null); //note: user.room is a JS object.
         await server.leaveRoom(); //server.user.rId is a field we create to keep track of the room we left
-        console.log("leaveRoom rId:", server.user.rId);
         //notify other clients in that room that user left
         socket.to(server.user.rId).emit("chatlog", {
           name: "System",
@@ -66,6 +69,7 @@ module.exports = function (io) {
         });
         socket.leave(server.user.rId); //unsubscribe from the channel
         io.emit("rooms", await Room.find()); //update rooms globally
+        return cb({ ok: true, data: server.user });
       } catch (err) {
         return cb({ ok: false, error: err.message });
       }

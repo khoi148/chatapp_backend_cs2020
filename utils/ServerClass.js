@@ -27,22 +27,30 @@ class Server {
     return user;
   }
   static async checkUser(socketId) {
-    console.log("socketId from user is: ", socketId);
-    const user = await User.findOne({ token: socketId }); //registered/logged in user with the token from that socket
-    //console.log("user is: ", user);
-    if (!user) throw new Error("User not found: ", socketId);
-    return new Server(user);
+    console.log("checkUser, socketId from user is: ", socketId);
+    try {
+      const user = await User.findOne({ token: socketId }); //registered/logged in user with the token from that socket
+      //console.log("user is: ", user);
+      //if (!user) throw new Error("User not found: ", socketId);
+      return new Server(user);
+    } catch (err) {
+      throw new Error("checkUser error, " + err.message);
+    }
   }
   async joinRoom(roomId) {
     this.leaveRoom();
-    const room = await Room.findById(roomId); //don't forget await
-    if (!room.members.includes(this.user._id)) {
-      room.members.push(this.user._id);
-      room.save();
+    try {
+      const room = await Room.findById(roomId); //don't forget await
+      if (!room.members.includes(this.user._id)) {
+        room.members.push(this.user._id);
+        room.save();
+      }
+      this.user.room = roomId; //save roomID to database
+      await this.user.save();
+      this.user.room = room; //however, in JS, we will use the JS object
+    } catch (err) {
+      console.log("joinRoom error, " + err.message);
     }
-    this.user.room = roomId; //save roomID to database
-    await this.user.save();
-    this.user.room = room; //however, in JS, we will use the JS object
   }
 
   async leaveRoom() {
@@ -56,7 +64,7 @@ class Server {
       await this.user.save();
       this.user.rId = rId; //record the room they left in
     } catch (err) {
-      throw new Error(err.message);
+      return new Error("leaveRoom() error, " + err.message);
     }
   }
 
